@@ -1,0 +1,30 @@
+table.crypto-table {
+    @apply w-full
+}
+
+tr.crypto-item {
+    @apply w-full py-4
+}
+
+td.symbol {
+    @apply flex flex-row gap-4
+}
+
+table.crypto-table thead {
+    @apply text-xs font-semibold tracking-wider bg-zinc-100
+}
+
+table.crypto-table thead>tr {
+    @apply mx-8
+}
+
+
+table.crypto-table thead th {
+    @apply text-start py-4
+}
+
+
+
+tr.crypto-item .crypto-icon {
+    @apply w-8 h-8 rounded-full
+}
