@@ -58,10 +58,6 @@ export default function MainTable(): JSX.Element {
 		};
 	}, [handleScroll]);
 
-	const handleButtonClick = (query: string) => {
-		setSearchQuery(query);
-	};
-
 	const filteredSymbols = React.useMemo(() => {
 		return symbols.filter((symbol) => symbol.symbol.toLowerCase().includes(searchQuery.toLowerCase()));
 	}, [symbols, searchQuery]);
