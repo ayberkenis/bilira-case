@@ -1,6 +1,11 @@
 table.crypto-table {
-    @apply w-full
+    @apply w-full table-auto
 }
+
+th, td {
+    @apply py-2 px-4
+}
+
 
 tr.crypto-item {
     @apply w-full py-4
@@ -11,20 +16,62 @@ td.symbol {
 }
 
 table.crypto-table thead {
-    @apply text-xs font-semibold tracking-wider bg-zinc-100
+    @apply text-xs font-semibold tracking-wider bg-[#F9FAFB] text-[#AEB7C7]
 }
 
-table.crypto-table thead>tr {
-    @apply mx-8
+table.crypto-table thead tr {
+    @apply px-4
 }
 
+tbody tr {
+    @apply hover:bg-zinc-200 text-center
+}
 
 table.crypto-table thead th {
     @apply text-start py-4
 }
 
 
-
 tr.crypto-item .crypto-icon {
     @apply w-8 h-8 rounded-full
+}
+
+table.crypto-table thead th:first-child {
+    @apply text-left py-4;
+}
+
+table.crypto-table thead th:not(:first-child) {
+    @apply text-right py-4;
+}
+
+tr.crypto-item td:first-child {
+    @apply text-left;
+}
+
+tr.crypto-item td:not(:first-child) {
+    @apply text-right;
+}
+
+tr.crypto-item {
+    @apply w-full py-4;
+}
+
+.daily-change {
+    @apply flex flex-row justify-end items-center gap-2
+}
+
+.sparkline {
+    @apply items-center
+}
+
+.symbol .symbol-info {
+    @apply flex flex-row items-center
+}
+
+.crypto-item .daily-change {
+    @apply min-h-[52px] flex items-center
+}
+
+.sparkline {
+    @apply min-w-[100px] justify-self-end
 }

@@ -1,70 +1,93 @@
-import React, { useState, useEffect } from "react";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import axios from "axios";
+import React, { useState, useEffect, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import SingleTableItem from "./singleTableItem";
 import "../../assets/css/table.layout.css";
-import fetchAvailablePairs from "../../api/symbols";
+import { fetchAvailablePairs } from "../../api/symbols";
 import Loading from "../common/loading";
-import { REST_API } from "../../lib/constants";
-import Symbol from "@/types/crypto";
+import Logo from "../../assets/img/BiLira.svg";
+import { binanceTickerSocket } from "../../api/socket";
 
-export default function MainTable() {
-	const [isFetchingMore, setIsFetchingMore] = useState(false);
+/**
+ * MainTable component displays a table of cryptocurrency data, updating in real-time via WebSocket.
+ * It supports infinite scrolling to load more symbols.
+ *
+ * @component
+ * @returns {JSX.Element} The rendered table with cryptocurrency data.
+ */
+export default function MainTable(): JSX.Element {
+	const [page, setPage] = useState(0); // Tracks the current page
+	const [symbols, setSymbols] = useState<any[]>([]); // Stores the loaded symbols
+	const [tickerData, setTickerData] = useState<{ [key: string]: any }>({}); // Stores the latest ticker data as an object with symbol as key
 
-	const { data, error, fetchNextPage, hasNextPage, isFetching, isFetchingNextPage, status } = useInfiniteQuery({
-		initialPageParam: 0,
-		queryKey: ["ticker"],
-		queryFn: async ({ pageParam = 0 }) => {
-			const symbolsToFetch: Symbol[] = await fetchAvailablePairs();
+	/**
+	 * WebSocket message handler to update ticker data.
+	 *
+	 * @param {Object|Object[]} data - The ticker data received from the WebSocket.
+	 */
+	const handleSocket = (data: any) => {
+		const tickerArray = Array.isArray(data) ? data : [data];
 
-			const symbolsArray = symbolsToFetch.map((item) => item.symbol);
-			const symbolsString = JSON.stringify(symbolsArray.slice(pageParam * 10, (pageParam + 1) * 10));
-			const encodedSymbols = encodeURIComponent(symbolsString);
+		// Convert array of ticker data to an object keyed by symbol
+		const newTickerData = tickerArray.reduce((acc, ticker) => {
+			acc[ticker.s] = ticker;
+			return acc;
+		}, {} as { [key: string]: any });
 
-			const response = await axios.get<Symbol[]>(`${REST_API}ticker/24hr?symbols=${encodedSymbols}`);
-			const list = response.data;
+		// Update state with the new ticker data, merging it with the old data
+		setTickerData((prev) => ({
+			...prev,
+			...newTickerData,
+		}));
+	};
 
-			const sortedData = list.sort((a: any, b: any) => b.price - a.price);
+	// Bind the WebSocket handler when the component mounts
+	useEffect(() => {
+		binanceTickerSocket.onMessage(handleSocket); // Subscribe to the WebSocket ticker updates
 
-			sortedData.forEach((item) => {
-				if (item.symbol.endsWith("USDT")) {
-					const symbol = symbolsToFetch.find((symbol) => item.symbol.startsWith(symbol.symbol));
-					if (symbol) {
-						item.baseAsset = symbol.baseAsset;
-					}
-				}
-			});
+		// Clean up the WebSocket subscription when the component unmounts
+		return () => {
+			binanceTickerSocket.offMessage(handleSocket); // Unsubscribe the handler
+		};
+	}, []);
 
-			return {
-				data: sortedData,
-				nextCursor: pageParam + 1 < Math.ceil(symbolsArray.length / 10) ? pageParam + 1 : undefined,
-			};
-		},
-		getNextPageParam: (lastPage) => lastPage.nextCursor,
+	const { data, isLoading, error } = useQuery({
+		queryKey: ["symbols", page],
+		queryFn: () => fetchAvailablePairs(page, 10),
 	});
 
-	const handleScroll = () => {
-		if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 2 && !isFetchingMore && hasNextPage) {
-			setIsFetchingMore(true);
-			fetchNextPage().finally(() => {
-				setIsFetchingMore(false);
-			});
+	// When data is fetched, append it to the symbols state
+	useEffect(() => {
+		if (data) {
+			setSymbols((prev) => [...prev, ...data]);
 		}
-	};
+	}, [data]);
+
+	// Scroll event handler to load more items when reaching bottom
+	const handleScroll = useCallback(() => {
+		if (window.innerHeight + document.documentElement.scrollTop !== document.documentElement.offsetHeight) return;
+		setPage((prevPage) => prevPage + 1);
+	}, []);
 
 	useEffect(() => {
 		window.addEventListener("scroll", handleScroll);
 		return () => {
 			window.removeEventListener("scroll", handleScroll);
 		};
-	}, [isFetchingMore, hasNextPage]);
+	}, [handleScroll]);
+
+	if (isLoading && page === 0) {
+		return <Loading />;
+	}
 
 	if (error) {
-		return <p>Error: {error.message}</p>;
+		return <div>Error fetching data...</div>;
 	}
 
 	return (
 		<>
+			<span className="brand-case">
+				<img src={Logo} alt="Logo" />
+			</span>
 			<table className="crypto-table">
 				<thead className="table-header">
 					<tr>
@@ -72,29 +95,38 @@ export default function MainTable() {
 						<th>Price</th>
 						<th>Market Value</th>
 						<th>24h Change</th>
+						<th>Sparkline</th>
 					</tr>
 				</thead>
 				<tbody>
-					{data?.pages.map((page, i) => (
-						<React.Fragment key={i}>
-							{page.data.map((item: Symbol, index: number) => (
-								<SingleTableItem data={item} key={`${i}-${index}`} />
-							))}
-						</React.Fragment>
-					))}
+					{symbols && symbols.length > 0 ? (
+						symbols.map((item, index) => {
+							// Find the corresponding ticker data by symbol (item.symbol)
+							const ticker = tickerData[item.symbol] || {};
+
+							return (
+								<SingleTableItem
+									data={{ ...item, ...ticker }} // Merge static data with real-time data
+									key={index}
+								/>
+							);
+						})
+					) : (
+						<tr>
+							<td colSpan={5} style={{ textAlign: "center" }}>
+								No data available
+							</td>
+						</tr>
+					)}
 				</tbody>
 			</table>
 			<div style={{ height: "20px", marginTop: "10px", textAlign: "center" }}>
-				{isFetchingNextPage || isFetchingMore ? (
-					<Loading />
-				) : hasNextPage ? (
-					<button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="load-more-button">
-						Load more
-					</button>
-				) : status === "pending" || isFetching ? (
+				{isLoading ? (
 					<Loading />
 				) : (
-					"No more data"
+					<button onClick={() => setPage((prevPage) => prevPage + 1)} className="load-more-button">
+						Load More
+					</button>
 				)}
 			</div>
 		</>

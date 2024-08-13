@@ -20,3 +20,11 @@
         transform: rotate(360deg);
     }
 }
+
+.load-more-button {
+    @apply bg-primary rounded-md text-white px-4 py-2;
+}
+
+.brand-case {
+    @apply px-4 py-8
+}

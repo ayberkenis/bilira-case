@@ -5,7 +5,7 @@ module.exports = {
 		extend: {
 			colors: {
 				primary: "#084ec5", // BiLira Primary/Accent Color
-				neutral: "#23272e", // BiLira Neutral Color
+				neutralBlack: "#23272e", // BiLira Neutral Color
 			},
 		},
 	},
