@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ExchangeInfoItem, Filter } from "@/types/exchangeInfo";
+import { ExchangeInfoItem } from "@/types/exchangeInfo";
 
 /**
  * Fetches available trading pairs from the Binance API that end with "USDT".
