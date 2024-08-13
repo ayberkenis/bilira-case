@@ -11,13 +11,21 @@ import { ExchangeInfoItem } from "@/types/exchangeInfo";
  * @param {number} [limit=10] - The number of results to return per page (default is 10).
  * @returns {Promise<ExchangeInfoItem[]>} The filtered and paginated list of trading pairs.
  */
-export async function fetchAvailablePairs(page = 0, limit = 10) {
-	const response = await axios.get("https://api.binance.com/api/v3/exchangeInfo");
+export async function fetchAvailablePairs(
+	page: number = 0,
+	limit: number = 10,
+	symbols: String[] | null = null
+): Promise<ExchangeInfoItem[]> {
+	let url = "https://api.binance.com/api/v3/exchangeInfo";
+	if (symbols) {
+		url = `https://api.binance.com/api/v3/exchangeInfo?symbols=${symbols.join(",")}`;
+	}
+	const response = await axios.get(url);
 	const data = response.data;
 
 	// Filter and paginate the results
 	const filteredSymbols = data.symbols
-		.filter((item: ExchangeInfoItem) => item.symbol.endsWith("USDT"))
+		.filter((sym: ExchangeInfoItem) => sym.quoteAsset === "USDT")
 		.slice(page * limit, (page + 1) * limit);
 
 	return filteredSymbols;

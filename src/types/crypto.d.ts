@@ -5,6 +5,7 @@ export default interface Symbol {
 	priceChangePercent: string;
 	weightedAvgPrice: string;
 	prevClosePrice: string;
+	quoteAsset: string;
 	lastPrice: string;
 	lastQty: string;
 	bidPrice: string;

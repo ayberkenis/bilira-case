@@ -15,6 +15,7 @@ describe("SingleTableItem", () => {
 		symbol: "BTCUSDT",
 		priceChange: "500.00",
 		priceChangePercent: "2.5",
+		quoteAsset: "USDT",
 		weightedAvgPrice: "49500.00",
 		prevClosePrice: "49000.00",
 		lastPrice: "50000.00",

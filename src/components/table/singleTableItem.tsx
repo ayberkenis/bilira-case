@@ -103,14 +103,14 @@ const SingleTableItem = React.memo(({ data }: { data: Symbol }) => {
 				</span>
 				<span className="symbol-info">
 					{data.baseAsset}
-					<span className="text-xs text-zinc-400 tracking-wider">/USDT</span>
+					<span className="text-xs text-zinc-400 tracking-wider">/{data.quoteAsset}</span>
 				</span>
 			</td>
 			<td>
-				{PRICE_FORMATTING(data.c) ?? 0} <span className="text-sm text-zinc-400 tracking-wider">USDT</span>
+				{PRICE_FORMATTING(data.c) ?? 0} <span className="text-sm text-zinc-400 tracking-wider">{data.quoteAsset}</span>
 			</td>
 			<td>
-				{VOLUME_FORMATTING(data.v) ?? 0} <span className="text-sm text-zinc-400 tracking-wider">USDT</span>
+				{VOLUME_FORMATTING(data.v) ?? 0} <span className="text-sm text-zinc-400 tracking-wider">{data.quoteAsset}</span>
 			</td>
 
 			<td className={priceChangeColor + " daily-change"}>

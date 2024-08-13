@@ -79,6 +79,15 @@ tr.crypto-item {
     @apply min-w-[100px] justify-self-end
 }
 
+.search-bar {
+    @apply pb-8
+}
+
+.search-input {
+    @apply w-full p-2 rounded-md border-2 border-gray-300 focus:outline-none
+}
+
+
 /* Responsive Styles */
 @media (max-width: 768px) {
 
