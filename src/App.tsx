@@ -1,8 +1,8 @@
 import React from "react";
 
 import "./assets/css/base.css";
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
 import MainTable from "./components/table/mainTable";
 import HomeLayout from "./layouts/home";
 const queryClient = new QueryClient();
