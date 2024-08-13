@@ -120,7 +120,7 @@ export default function MainTable(): JSX.Element {
 					)}
 				</tbody>
 			</table>
-			<div style={{ height: "20px", marginTop: "10px", textAlign: "center" }}>
+			<div className="py-20">
 				{isLoading ? (
 					<Loading />
 				) : (
